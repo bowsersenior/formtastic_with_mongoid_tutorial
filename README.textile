@@ -1,4 +1,5 @@
 *** TODO ***
+Add info on:
 * use :reject_if in accepts_nested_attributes_for
 * get rid of blank entries in controller
 * add _destroy method to model so :allow_destroy works
@@ -16,6 +17,7 @@ I've had success using Mongoid with Formtastic for some pretty intricate nested 
 When using Mongoid with Formtastic, simple forms work just like on ActiveRecord models. When you have nested forms for relationships and embedded documents, there are some complications because of the variety of ways to implement relationships in Mongoid.
 
 h3. Formtastic form for Mongoid `references_many`
+
 So let's say you have the following Mongoid models with a many-to-many relationship:
 
 <pre>
@@ -87,7 +89,7 @@ end
 
 Then your formtastic form would look something like:
 <pre>
-
+  TODO
 </pre>
 
 2 important things to keep in mind:
