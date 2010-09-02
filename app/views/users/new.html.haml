@@ -1,0 +1,14 @@
+= semantic_form_for(@user) do |form|
+  %fieldset
+    %legend
+      Add a new user  
+  
+  = form.inputs do         
+    = form.input :name
+    = form.input :email    
+    
+    -# must specify `:as => boolean`, Formtastic doesn't detect the field type automatically
+    = form.input :active, :as => :boolean   
+    = form.input :user_type_ids, :as => :check_boxes, :collection => UserType.all.map{|ut| [ut.name,ut._id]}
+  
+  = form.buttons

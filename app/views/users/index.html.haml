@@ -1,0 +1,9 @@
+- @users.each do |user|
+  %ul
+    - %w( name email user_types ).each do |field|
+      %li
+        %strong
+          = field.titleize + ' : '
+        = user.send(field)
+
+  %hr

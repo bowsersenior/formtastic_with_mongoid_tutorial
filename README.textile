@@ -1,0 +1,95 @@
+*** TODO ***
+* use :reject_if in accepts_nested_attributes_for
+* get rid of blank entries in controller
+* add _destroy method to model so :allow_destroy works
+* when using update_attributes on an embedded document, make sure to do parent_model_.update_attributes and NOT embedded_model.update_attributes
+
+
+h2. Mongoid
+
+Here are some tips for using Formtastic with Mongoid on Rails 3. It's important to use Rails 3 because both Formtastic and Mongoid use Rails 3's ActiveModel for important things like validations.
+
+The following was implemented using Formtastic 1.1.0.beta, Mongoid 2.0.0.beta.17 and Rails 3.0.0.
+
+I've had success using Mongoid with Formtastic for some pretty intricate nested forms. It took me a while to figure out how to handle these kind of forms even with ActiveRecord, so I'd say using Mongoid is not a problem, although there are some gotchas. The following info is based on my limited experience using Mongoid with Formtastic and I'm sure there is plenty of room for improvement, so please add/edit this wiki if you have suggestions!
+
+When using Mongoid with Formtastic, simple forms work just like on ActiveRecord models. When you have nested forms for relationships and embedded documents, there are some complications because of the variety of ways to implement relationships in Mongoid.
+
+h3. Formtastic form for Mongoid `references_many`
+So let's say you have the following Mongoid models with a many-to-many relationship:
+
+<pre>
+class User
+  include Mongoid::Document
+
+  field :name
+  field :email
+  field :active, :type => Boolean
+  
+  # :stored_as => :array is important to getting Formtastic to work
+  references_many :user_types, :stored_as => :array, :inverse_of => :users
+end
+</pre>
+
+<pre>
+class UserType
+  include Mongoid::Document
+  
+  field :name
+  
+  references_many :users, :stored_as => :array, :inverse_of => :user_types
+end
+</pre>
+
+Then your form for a new user would look something like:
+<pre>
+= semantic_form_for(@user) do |form|
+  %fieldset
+    %legend
+      Add a new user  
+  
+  = form.inputs do         
+    = form.input :name
+    = form.input :email    
+    
+    -# must specify `:as => boolean`, Formtastic doesn't detect the field type automatically
+    = form.input :active, :as => :boolean   
+    = form.input :user_types, :as => :check_boxes, :collection => UserType.all.map{|ut| [ut.name,ut._id]}
+</pre>
+
+h3. Formtastic form for Mongoid embedded documents
+
+This gets a little ugly. But I previously had this formtastic form implemented with ActiveRecord, and it was even more complex! 
+
+Let's say you have the following models:
+
+<pre>
+class User
+  include Mongoid::Document
+
+  field :name
+  field :email
+  field :active, :type => Boolean
+  
+  embeds_many :messages
+end
+</pre>
+
+<pre>
+class Message
+  include Mongoid::Document
+
+  field :title
+  field :content
+  embedded_in :user, :inverse_of => :messages
+end
+</pre>
+
+Then your formtastic form would look something like:
+<pre>
+
+</pre>
+
+2 important things to keep in mind:
+* Mongoid allows for very flexible relationships and embeds. When using ActiveRecord with Formtastic there is usually a 'right way' of handling forms. With Mongoid you have to think things through and see how your documents are being stored (the mongo shell is your friend here).
+* Field types are not picked up automatically, so you have to specify if you have a Boolean field type
